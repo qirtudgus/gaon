@@ -9,7 +9,7 @@ function App() {
         <p className="text-3xl font-bold text-blue-500">
           Edit and save to reload.
         </p>
-        <p className="text-3xl font-bold text-blue-100">
+        <p className="text-3xl font-bold text-blue-100 bg-white text-green-900 hover:text-red-900 hover:-translate-y-10 duration-[3000ms]">
           Edit and save to reload.
         </p>
         <a
