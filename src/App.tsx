@@ -21,7 +21,7 @@ function App() {
       <React.Suspense fallback={<div>Loading...</div>}>
         <Api />
         <ErrorBoundary fallback={<div>error...</div>}>
-          <ErrorApi />
+          {/* <ErrorApi /> */}
         </ErrorBoundary>
       </React.Suspense>
     </div>
