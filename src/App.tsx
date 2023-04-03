@@ -1,5 +1,7 @@
 import React from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import Api from './@containers/TodoList/Api/Api';
+import ErrorApi from './@containers/TodoList/Api/ErrorApi';
 import TodoList from './@containers/TodoList/TodoList';
 
 import './App.css';
@@ -18,6 +20,9 @@ function App() {
       <TodoList />
       <React.Suspense fallback={<div>Loading...</div>}>
         <Api />
+        <ErrorBoundary fallback={<div>error...</div>}>
+          <ErrorApi />
+        </ErrorBoundary>
       </React.Suspense>
     </div>
   );
