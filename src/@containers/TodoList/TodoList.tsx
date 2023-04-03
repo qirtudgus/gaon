@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useState } from 'react';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import {
   filteredTodoListState,
   todoListFilterState,
   todoListState,
-} from "../../@store/todoList";
-import { TodoItem } from "./TodoItem";
+  todoListStatsState,
+} from '../../@store/todoList';
+import { TodoItem } from './TodoItem';
 
 const TodoList = () => {
   const filteredTodoList = useRecoilValue(filteredTodoListState);
@@ -13,7 +14,7 @@ const TodoList = () => {
 
   const [todoList, setTodoList] = useRecoilState(todoListState);
 
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState('');
 
   const addItem = () => {
     setTodoList((prev) => [
@@ -24,7 +25,7 @@ const TodoList = () => {
         isCompleted: false,
       },
     ]);
-    setValue("");
+    setValue('');
   };
   const onChange = (target: React.ChangeEvent<HTMLInputElement>) => {
     console.log(target.currentTarget.value);
@@ -33,6 +34,8 @@ const TodoList = () => {
 
   return (
     <div>
+      <TodoListStats />
+      <TodoListFilters />
       <input onChange={onChange} value={value}></input>
       <button onClick={addItem}>더하기</button>
       {filteredTodoList.map((el, index) => {
@@ -60,5 +63,30 @@ const TodoListFilters = () => {
     setFilter(value);
   };
 
-  return <></>;
+  return (
+    <>
+      Filter:
+      <select value={filter} onChange={updateFilter}>
+        <option value='Show All'>All</option>
+        <option value='Show Completed'>Completed</option>
+        <option value='Show Uncompleted'>Uncompleted</option>
+      </select>
+    </>
+  );
 };
+
+function TodoListStats() {
+  const { totalNum, totalCompletedNum, totalUncompletedNum, percentCompleted } =
+    useRecoilValue(todoListStatsState);
+
+  const formattedPercentCompleted = Math.round(percentCompleted * 100);
+
+  return (
+    <ul>
+      <li>Total items: {totalNum}</li>
+      <li>Items completed: {totalCompletedNum}</li>
+      <li>Items not completed: {totalUncompletedNum}</li>
+      <li>Percent completed: {formattedPercentCompleted}</li>
+    </ul>
+  );
+}
