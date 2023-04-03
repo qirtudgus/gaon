@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import Box from '../../../@components/Box';
 import { ApiState, ChangePossibleApiState } from '../../../@store/api';
 
 const Api = () => {
@@ -7,7 +8,7 @@ const Api = () => {
 
   useEffect(() => {
     // 오류없이 아톰의 초기값을 핸들링할 수 있다.
-    setPostList((prev: any) => prev.concat({ id: '1' }));
+    // setPostList((prev: any) => prev.concat({ id: '1' }));
   }, []);
 
   //   if (!postList || !postList) {
@@ -25,8 +26,14 @@ const Api = () => {
       >
         포스트확인
       </button>
-      {postList.map((el: any, idx: number) => (
-        <p key={idx}>{el.id}</p>
+      {postList.map((el, idx: number) => (
+        <Box
+          key={el.id}
+          userId={el.userId}
+          id={el.id}
+          title={el.title}
+          body={el.body}
+        ></Box>
       ))}
     </div>
   );
