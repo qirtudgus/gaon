@@ -5,3 +5,10 @@ export interface TodoItemInterface {
 }
 
 export type TodoList = TodoItemInterface[];
+
+export interface PostListInterface {
+  body: string;
+  id: number;
+  userId: number;
+  title: string;
+}
