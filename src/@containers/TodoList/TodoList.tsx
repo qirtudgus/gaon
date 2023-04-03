@@ -1,10 +1,14 @@
 import { useState } from "react";
-import { useRecoilState } from "recoil";
-import { todoListState } from "../../@store/todoList";
+import { useRecoilState, useRecoilValue } from "recoil";
+import {
+  filteredTodoListState,
+  todoListFilterState,
+  todoListState,
+} from "../../@store/todoList";
 import { TodoItem } from "./TodoItem";
 
 const TodoList = () => {
-  // const todoList = useRecoilValue(todoListState);
+  const filteredTodoList = useRecoilValue(filteredTodoListState);
   // const setTodoList = useSetRecoilState(todoListState);
 
   const [todoList, setTodoList] = useRecoilState(todoListState);
@@ -31,9 +35,14 @@ const TodoList = () => {
     <div>
       <input onChange={onChange} value={value}></input>
       <button onClick={addItem}>더하기</button>
-      {todoList.map((el, index) => {
+      {filteredTodoList.map((el, index) => {
         return (
-          <TodoItem id={el.id} isCompleted={el.isCompleted} text={el.text} />
+          <TodoItem
+            key={el.id}
+            id={el.id}
+            isCompleted={el.isCompleted}
+            text={el.text}
+          />
         );
       })}
     </div>
@@ -41,3 +50,15 @@ const TodoList = () => {
 };
 
 export default TodoList;
+
+const TodoListFilters = () => {
+  const [filter, setFilter] = useRecoilState(todoListFilterState);
+
+  const updateFilter = ({
+    target: { value },
+  }: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilter(value);
+  };
+
+  return <></>;
+};
