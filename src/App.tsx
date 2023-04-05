@@ -5,6 +5,7 @@ import ErrorApi from './@containers/TodoList/Api/ErrorApi';
 import TodoList from './@containers/TodoList/TodoList';
 import { forwardRef } from 'react';
 import './App.css';
+import Query from './@containers/TodoList/query/Query';
 
 function App() {
   const ref = useRef<ChildMethods>(null);
@@ -45,6 +46,7 @@ function App() {
         <ErrorBoundary fallback={<div>error...</div>}>
           {/* <ErrorApi /> */}
         </ErrorBoundary>
+        <Query />
       </React.Suspense>
     </div>
   );
