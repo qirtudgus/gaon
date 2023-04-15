@@ -41,3 +41,13 @@ export const ErrorApiState = selector<any | unknown>({
     }
   },
 });
+export const fetchPosts = async ({ pageParam = 1 }) => {
+  await new Promise((resolve) => setTimeout(resolve, 500)); // 1초 딜레이
+  const res = await axios.get(
+    `https://jsonplaceholder.typicode.com/posts?_page=${pageParam}`,
+  );
+  const data = await res.data;
+  const hasNextPage = data.length > 0;
+  const nextPageNumber = pageParam + 1;
+  return { data, hasNextPage, nextPageNumber };
+};
