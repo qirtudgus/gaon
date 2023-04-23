@@ -50,7 +50,7 @@ function App() {
         </ErrorBoundary>
         <Query />
       </React.Suspense>
-      <footer className='w-full h-[57px]  bg-slate-400'></footer>
+      <footer className='w-full h-[57px]  bg-red-400'></footer>
     </div>
   );
 }
