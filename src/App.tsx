@@ -48,6 +48,7 @@ function App() {
         </ErrorBoundary>
         <Query />
       </React.Suspense>
+      <footer className='w-full h-[57px]'></footer>
     </div>
   );
 }
