@@ -1,7 +1,6 @@
 import React, { Ref, useImperativeHandle, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import Api from './@containers/TodoList/Api/Api';
-import ErrorApi from './@containers/TodoList/Api/ErrorApi';
 import TodoList from './@containers/TodoList/TodoList';
 import { forwardRef } from 'react';
 import './App.css';
