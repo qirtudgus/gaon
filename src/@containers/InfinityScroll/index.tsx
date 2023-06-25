@@ -1,19 +1,24 @@
-import axios, { AxiosError } from 'axios';
-import { useInfiniteQuery, useQuery } from 'react-query';
-import React, { useEffect } from 'react';
-import { useInView } from 'react-intersection-observer';
-import { fetchPosts } from '../../@store/api';
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { useInView } from "react-intersection-observer";
+import { useInfiniteQuery, useQueryClient } from "react-query";
+import { fetchPosts } from "../../@store/api";
 function InfinityScroll() {
+  const [currentPage, setCurrentPage] = useState(1);
   const { ref, inView, entry } = useInView({
     /* Optional options */
     threshold: 0,
   });
 
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     // console.log(ref);
     console.log(inView);
     // console.log(entry);
-    if (inView) fetchNextPage();
+    if (inView) {
+      fetchNextPage();
+      // setCurrentPage((prev) => prev + 1);
+    }
   }, [inView]);
 
   const {
@@ -23,7 +28,7 @@ function InfinityScroll() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery('posts', fetchPosts, {
+  } = useInfiniteQuery(["posts", currentPage], fetchPosts, {
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.nextPageNumber : undefined,
     onSuccess: (data) => {
@@ -37,10 +42,19 @@ function InfinityScroll() {
     console.log(isFetchingNextPage);
   }, [isFetchingNextPage]);
 
+  useEffect(() => {
+    const nextPage = currentPage + 1;
+    queryClient.prefetchQuery(["posts", nextPage], () =>
+      fetchPosts({ pageParam: nextPage }),
+    );
+  }, [currentPage]);
+
+
+
   if (isLoading)
     return (
-      <div className='flex justify-center items-center flex-col '>
-        <div className='lds-ellipsis'>
+      <div className="flex justify-center items-center flex-col ">
+        <div className="lds-ellipsis">
           <div></div>
           <div></div>
           <div></div>
@@ -51,18 +65,18 @@ function InfinityScroll() {
   if (isError) return <p>Error :(</p>;
 
   return (
-    <div className='flex justify-center items-center  flex-col'>
+    <div className="flex justify-center items-center  flex-col">
       {data &&
         data.pages.map((page: any, i: number) =>
           page.data.map((item: any, i: number) => {
             return (
               <React.Fragment key={i}>
                 <div
-                  className=' w-[200px] h-[50px] bg-slate-300 m-3 shadow-md rounded-md'
+                  className=" w-[200px] h-[50px] bg-slate-300 m-3 shadow-md rounded-md"
                   key={item.id}
                   ref={ref}
                 >
-                  <h2 className='truncate'>{item.title}</h2>
+                  <h2 className="truncate">{item.title}</h2>
                   <p>{item.userId}</p>
                 </div>
               </React.Fragment>
@@ -74,7 +88,7 @@ function InfinityScroll() {
           {/* {isLoading ? 'Loading more...' : 'Load More'} */}
           {isFetchingNextPage ? (
             <>
-              <div className='lds-ellipsis'>
+              <div className="lds-ellipsis">
                 <div></div>
                 <div></div>
                 <div></div>
@@ -82,7 +96,7 @@ function InfinityScroll() {
               </div>
             </>
           ) : (
-            'Load More'
+            "Load More"
           )}
         </button>
       )}

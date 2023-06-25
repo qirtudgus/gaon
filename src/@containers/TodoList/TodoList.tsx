@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useState } from "react";
+import { useRecoilState, useRecoilValue } from "recoil";
 import {
   filteredTodoListState,
   todoListFilterState,
   todoListState,
   todoListStatsState,
-} from '../../@store/todoList';
-import { TodoItem } from './TodoItem';
+} from "../../@store/todoList";
+import { TodoItem } from "./TodoItem";
 
 const TodoList = () => {
   const filteredTodoList = useRecoilValue(filteredTodoListState);
@@ -14,19 +14,19 @@ const TodoList = () => {
 
   const [todoList, setTodoList] = useRecoilState(todoListState);
 
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
 
-  const addItem = () => {
-    setTodoList((prev) => [
-      ...prev,
-      {
-        id: prev[prev.length - 1].id + 1,
-        text: value,
-        isCompleted: false,
-      },
-    ]);
-    setValue('');
-  };
+  // const addItem = () => {
+  //   setTodoList((prev) => [
+  //     ...prev,
+  //     {
+  //       id: prev[prev.length - 1].id + 1,
+  //       text: value,
+  //       isCompleted: false,
+  //     },
+  //   ]);
+  //   setValue('');
+  // };
   const onChange = (target: React.ChangeEvent<HTMLInputElement>) => {
     console.log(target.currentTarget.value);
     setValue(target.currentTarget.value);
@@ -37,7 +37,7 @@ const TodoList = () => {
       <TodoListStats />
       <TodoListFilters />
       <input onChange={onChange} value={value}></input>
-      <button onClick={addItem}>더하기</button>
+      {/* <button onClick={addItem}>더하기</button> */}
       {filteredTodoList.map((el, index) => {
         return (
           <TodoItem
@@ -67,9 +67,9 @@ const TodoListFilters = () => {
     <>
       Filter:
       <select value={filter} onChange={updateFilter}>
-        <option value='Show All'>All</option>
-        <option value='Show Completed'>Completed</option>
-        <option value='Show Uncompleted'>Uncompleted</option>
+        <option value="Show All">All</option>
+        <option value="Show Completed">Completed</option>
+        <option value="Show Uncompleted">Uncompleted</option>
       </select>
     </>
   );
