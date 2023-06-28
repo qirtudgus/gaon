@@ -1,0 +1,4 @@
+[data-scroll-ref] {
+    -webkit-touch-callout: none;
+    -webkit-overflow-scrolling: touch;
+  }

@@ -15,7 +15,11 @@ import {
   motion,
   useAnimation,
   useAnimationControls,
+  useAnimationFrame,
+  useMotionValue,
+  useMotionValueEvent,
   useScroll,
+  useTransform,
 } from "framer-motion";
 import { ErrorBoundary } from "react-error-boundary";
 import Api from "./@containers/TodoList/Api/Api";
@@ -24,64 +28,60 @@ import TodoList from "./@containers/TodoList/TodoList";
 import { forwardRef } from "react";
 import "./App.css";
 import Query from "./@containers/TodoList/query/Query";
-import { FramerBottomSheet } from "./@components/FramerBottomSheet";
+// import { FramerBottomSheet } from "./@components/FramerBottomSheet";
 import { FramerBottomSheet2 } from "./@components/FramerBottomSheet2";
+// import { FramerBottomSheet3 } from "./@components/FramerBottomSheet3";
+// import { FramerBottomSheet3 } from "./@components/FramerBottomSheet4";
+import { FramerBottomSheet } from "./@components/FramerBottomSheet5";
+
+const snapPoint: [50, 300] = [50, 300];
 
 function App() {
-  const [position, setPosition] = useState("top");
-  const controls = useAnimation();
-  const snapPoints = [0, 100, 200]; // you can add as many as you want
+  const y = useMotionValue(50);
 
-  const onDragEnd = (e, { point, velocity }) => {
-    let closestPoint;
+  const onDrag = (
+    event: MouseEvent | TouchEvent | PointerEvent,
+    panInfo: PanInfo,
+  ) => {
+    const velocity = y.getVelocity();
+    const currentY = y.get();
+    const { delta } = panInfo;
 
-    // If the velocity is high enough, switch to the next snap point
-    if (velocity.y > 200) {
-      const currentIndex = snapPoints.indexOf(
-        snapPoints.reduce((prev, curr) =>
-          Math.abs(curr - point.y) < Math.abs(prev - point.y) ? curr : prev,
-        ),
-      );
-      closestPoint =
-        snapPoints[currentIndex + 1] || snapPoints[snapPoints.length - 1];
-    } else if (velocity.y < -200) {
-      const currentIndex = snapPoints.indexOf(
-        snapPoints.reduce((prev, curr) =>
-          Math.abs(curr - point.y) < Math.abs(prev - point.y) ? curr : prev,
-        ),
-      );
-      closestPoint = snapPoints[currentIndex - 1] || snapPoints[0];
-    } else {
-      closestPoint = snapPoints.reduce((prev, curr) =>
-        Math.abs(curr - point.y) < Math.abs(prev - point.y) ? curr : prev,
-      );
+    // Determine the direction of drag
+    if (delta.y < 0) {
+      console.log("Dragged up!");
+
+      if (currentY >= snapPoint[1]) {
+        return;
+      }
+    } else if (delta.y > 0) {
+      console.log("Dragged down!");
+      if (currentY <= snapPoint[0]) {
+        return;
+      }
     }
 
-    if (closestPoint === snapPoints[0]) {
-      setPosition("top");
-    } else if (closestPoint === snapPoints[snapPoints.length - 1]) {
-      setPosition("bottom");
-    } else {
-      setPosition("middle");
-    }
+    const setY = () => {
+      console.log("y : ", y);
+      return Math.max(y.get() - delta.y, 0);
+    };
 
-    controls.start({ y: closestPoint });
+    // Make sure user cannot drag beyond the top of the sheet
+    y.set(setY());
   };
 
   return (
     <div className="App">
       <motion.div
-        className="fixed bottom-0 w-full h-[50vh] bg-blue-500 overflow-auto rounded-t-lg"
         drag="y"
-        dragConstraints={{
-          top: snapPoints[0],
-          bottom: snapPoints[snapPoints.length - 1],
-        }}
-        dragElastic={0.1}
-        animate={controls}
-        onDragEnd={onDragEnd}
+        dragElastic={0}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        style={{ height: y }}
+        // animate={{ height: 0, transition: { type: "tween" } }}
+        onDrag={onDrag}
+        className="w-full bg-red-500 fixed bottom-0 left-0 overflow-hidden"
       >
-        Drag me. Current position: {position}
+        a
       </motion.div>
     </div>
   );
