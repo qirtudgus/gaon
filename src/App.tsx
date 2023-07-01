@@ -1,106 +1,61 @@
 // ! 이중 스크롤을 막는 방법은 css의 overscroll-none 이었다.
 // ! 이외에 touch-callout 등 모바일을 위한 css도 있다.
 
-import React, {
-  FC,
-  HTMLAttributes,
-  Ref,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
-import {
-  PanInfo,
-  motion,
-  useAnimation,
-  useAnimationControls,
-  useAnimationFrame,
-  useMotionValue,
-  useMotionValueEvent,
-  useScroll,
-  useTransform,
-} from "framer-motion";
-import { ErrorBoundary } from "react-error-boundary";
-import Api from "./@containers/TodoList/Api/Api";
-import ErrorApi from "./@containers/TodoList/Api/ErrorApi";
-import TodoList from "./@containers/TodoList/TodoList";
-import { forwardRef } from "react";
+import { FC, HTMLAttributes } from "react";
 import "./App.css";
-import Query from "./@containers/TodoList/query/Query";
-// import { FramerBottomSheet } from "./@components/FramerBottomSheet";
-import { FramerBottomSheet2 } from "./@components/FramerBottomSheet2";
-// import { FramerBottomSheet3 } from "./@components/FramerBottomSheet3";
-// import { FramerBottomSheet3 } from "./@components/FramerBottomSheet4";
-// import { FramerBottomSheet } from "./@components/FramerBottomSheet5";
 import { FramerBottomSheet } from "./@components/FramerBottomSheet6";
-import BottomSheet from "./@components/BottomSheet";
-
-const snapPoint: [50, 300] = [50, 300];
 
 function App() {
-  const y = useMotionValue(50);
-
-  const onDrag = (
-    event: MouseEvent | TouchEvent | PointerEvent,
-    panInfo: PanInfo,
-  ) => {
-    const velocity = y.getVelocity();
-    const currentY = y.get();
-    const { delta } = panInfo;
-
-    // Determine the direction of drag
-    if (delta.y < 0) {
-      console.log("Dragged up!");
-
-      if (currentY >= snapPoint[1]) {
-        return;
-      }
-    } else if (delta.y > 0) {
-      console.log("Dragged down!");
-      if (currentY <= snapPoint[0]) {
-        return;
-      }
-    }
-
-    const setY = () => {
-      console.log("y : ", y);
-      return Math.max(y.get() - delta.y, 0);
-    };
-
-    // Make sure user cannot drag beyond the top of the sheet
-    y.set(setY());
-  };
-
   return (
     <div className="App">
-      {/* <BottomSheet></BottomSheet> */}
+      <div className="    bg-gradient-to-t bg-slate-500 h-[130vh]">배경</div>
       <FramerBottomSheet
         initialPosition="top"
         style={{ backgroundColor: "#FAFAFA" }}
-        snapPoint={{ top: { height: 600 }, bottom: { height: 100 } }}
+        snapPoint={{ top: { height: 400 }, bottom: { height: 100 } }}
         header={true}
-        // bottomScrollLock
-        headerElement={<div className="h-10 bg-red-500">헤더</div>}
+        bottomScrollLock
+        headerElement={<div className="h-10 bg-white">헤더</div>}
       >
-        {/* <div className="bg-blue-500 h-[1000px]">gg</div> */}
+        <BoxList />
       </FramerBottomSheet>
-      {/* <motion.div
-        drag="y"
-        dragElastic={0}
-        dragConstraints={{ top: 0, bottom: 0 }}
-        style={{ height: y }}
-        // animate={{ height: 0, transition: { type: "tween" } }}
-        onDrag={onDrag}
-        className="w-full bg-red-500 fixed bottom-0 left-0 overflow-hidden"
-      >
-        a
-      </motion.div> */}
     </div>
   );
 }
 
 export default App;
+
+const BoxList = () => {
+  return (
+    <>
+      <div className="text-20  text-center">
+        <div className="bg-blue-500 h-[200px]">1번</div>
+        <div className="bg-green-500 h-[200px]">2번</div>
+        <div className="bg-yellow-500 h-[200px]">3번</div>
+        <div className="bg-red-500 h-[200px]">4번</div>
+        <div className="bg-purple-500 h-[200px]">5번</div>
+
+        <div className="flex overflow-x-auto w-full h-[200px] whitespace-nowrap">
+          <div className="bg-blue-500 h-[200px] w-[500px] flex-shrink-0">
+            가로1번
+          </div>
+          <div className="bg-green-500 h-[200px] w-[500px] flex-shrink-0 ">
+            가로2번
+          </div>
+          <div className="bg-yellow-500 h-[200px] w-[500px] flex-shrink-0">
+            가로3번
+          </div>
+          <div className="bg-red-500 h-[200px] w-[500px] flex-shrink-0">
+            가로4번
+          </div>
+          <div className="bg-purple-500 h-[200px] w-[500px] flex-shrink-0">
+            가로5번
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
 
 export interface RecentFuneralHomeCardProps
   extends HTMLAttributes<HTMLDivElement> {

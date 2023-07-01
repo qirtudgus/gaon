@@ -3,8 +3,8 @@
 //TODO [O] - 브라우저 주소창이 사라질 때 시트가 바로 따라오지않는 오류 수정하기
 //TODO [O] - 애니메이션 bottom 속성에서 translateY로 변경하기
 //TODO [O] - 상위컴포넌트에서 사용할 useImperativeHandle 제작 ex) snapTo()
+//TODO [O] - ios에서 오버스크롤링 삭제하기
 //TODO [ ] - 스크롤 위치 저장하기
-//TODO [ ] - ios에서 오버스크롤링 삭제하기
 //TODO [ ] - tailwindCSS 의존성 제거하기
 //TODO [ ] - overlay 만들기
 //TODO [ ] - ESC, overlay touch로 bottomSheet 닫기
@@ -18,18 +18,26 @@
 // * dragSnapToOrigin을 제거하고, onDragEnd에서 else문을 추가하여 원래 position 돌아가게 처리. #1 같이 fix됨
 //!BUG#4 [O] - bottomScollLock을 걸지않으면 bottom에서 드래그가 되지않는 버그
 // * usePreventSroll 특정 상황에서 위로 올릴때의 preventDefault() 추가
+//!BUG#5 [O] - safari에서 scroll이 0이 되고나면 다시 스크롤을 못올리고 바텀시트만 드래그 되는 버그
+//!BUG#6 [O] - safari에서 scrollRef의 Scroll이 0이 되고나면 스크롤이 배경을 인식하는 버그
+// * 5,6 모두 scroll이 없을 경우엔 작동에 문제 없음
+// * 아래 방법으로는 해결되었으나 라이브러리의 방법으로는 부적절
+// https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=aramjo&logNo=221237982842
+//!BUG#7 [ ] - 간헐적으로 safari에서 배경에 overScroll이 일어나고나면 바텀시트의 드래그 제한영역이 먹히지 않는 오류
+// * 바텀시트가 렌더링이 새로 되면 증상이 사라짐
+// * 안드로이드 크롬도 동일하게 모바일 브라우저의 주소창이 사라지면 바텀시트의 제한영역이 사라짐
+// * useWindowSize를 사용하는 useEffect 디펜던시를 제거하니 증상 사라짐
+
 import {
   forwardRef,
   useEffect,
   useImperativeHandle,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 
 import { PanInfo, motion, useAnimation } from "framer-motion";
-import { useWindowSize } from "react-use";
 import { createPortal } from "react-dom";
 
 import { usePreventScroll } from "./hooks/usePreventScroll";
@@ -54,7 +62,6 @@ const FramerBottomSheet: FramerBottomSheetType = (
   },
   externalRef,
 ) => {
-  const { height } = useWindowSize();
   const [position, setPosition] = useState(initialPosition);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -127,12 +134,6 @@ const FramerBottomSheet: FramerBottomSheetType = (
   useEffect(() => {
     controls.start(position);
   }, [controls, position]);
-
-  //! 뷰포트 리사이징 대응
-  useLayoutEffect(() => {
-    controls.start(position, { duration: 0 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [controls, height]);
 
   return (
     <>

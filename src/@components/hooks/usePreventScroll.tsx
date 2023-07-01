@@ -98,7 +98,11 @@ const usePreventScroll = ({
     scrollRef.current.addEventListener(
       "touchmove",
       preventSafariOverscrollOnMove,
+      {
+        passive: false,
+      },
     );
+
     scrollRef.current.addEventListener(
       "touchstart",
       preventSafariOverscrollOnStart,
@@ -106,6 +110,7 @@ const usePreventScroll = ({
         passive: true,
       },
     );
+
     return () => {
       if (!scrollRef.current) return;
       scrollRef.current.removeEventListener("touchstart", handleTouchStart);
