@@ -1,6 +1,20 @@
-import React, { MutableRefObject, PropsWithChildren, ReactNode } from "react";
+import React, {
+  ForwardRefRenderFunction,
+  MutableRefObject,
+  PropsWithChildren,
+  ReactNode,
+} from "react";
 
 import { motion } from "framer-motion";
+
+export type SnapType = "bottom" | "top";
+
+export interface FramerBottomSheetRefHandles {
+  snapTo: (position: SnapType) => void;
+  getPosition: () => string;
+}
+
+export type FramerBottomSheetRef = FramerBottomSheetRefHandles;
 
 export type FramerBottomSheetProps = React.ComponentPropsWithoutRef<
   typeof motion.div
@@ -13,7 +27,7 @@ export type FramerBottomSheetProps = React.ComponentPropsWithoutRef<
      * <FramerBottomSheet3 initialPostion={'top'}>
      * ```
      */
-    initialPosition: "top" | "bottom";
+    initialPosition: SnapType;
     /**
      * 바텀시트가 열린 후 실행될 콜백 함수
      * ```jsx
@@ -45,6 +59,11 @@ export type FramerBottomSheetProps = React.ComponentPropsWithoutRef<
      */
     bottomScrollLock?: boolean;
     style?: React.CSSProperties;
+    /**
+     * createPortal Container
+     * @default document.body
+     */
+    portalContainer?: Element | DocumentFragment;
   };
 
 export interface UsePreventScrollProps {
@@ -53,3 +72,8 @@ export interface UsePreventScrollProps {
   position: string;
   header: boolean;
 }
+
+export type FramerBottomSheetType = ForwardRefRenderFunction<
+  FramerBottomSheetRefHandles,
+  FramerBottomSheetProps
+>;

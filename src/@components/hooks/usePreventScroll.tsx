@@ -1,103 +1,89 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import { UsePreventScrollProps } from "../interface/framerBottomSheet.interface";
 
-/**
- * 스크롤 여부를 판단하여 바텀시트의
- * 작동 방식을 핸들링합니다.
- * @returns
- */
 const usePreventScroll = ({
   scrollRef,
   bottomScrollLock,
   position,
-  header,
 }: UsePreventScrollProps) => {
-  const isContentTouchedRef = useRef(false); // content가 터치 되었는지를 추적
-  const hasScrolledRef = useRef(false); // 요소에 스크롤이 존재하는지를 추적
-  const initialTouchYCoordRef = useRef(0); // 터치 방향을 추적하기위한 최초 터치의 Y좌표값
-  const isScrollTopRef = useRef(true);
+  const isContentTouchedRef = useRef(false);
+  const hasScrolledRef = useRef(false);
+  const initialTouchYCoordRef = useRef(0);
 
-  useLayoutEffect(() => {
+  // 요소가 스크롤을 가지고 있는지 판단하는 함수
+  const doesElementHaveScroll = (element: HTMLElement) => {
+    return element.scrollHeight > element.clientHeight;
+  };
+
+  // TODO [ ] - 불필요한 변수 제거하기
+  // 위로 슬라이드 시 이벤트를 방지할지 결정하는 함수
+  const shouldPreventOnSlideUp = useCallback(
+    (hasScroll: boolean, isTopPosition: boolean) => {
+      // 스크롤이 없고, 현재 위치가 'top'인지 확인
+      const isNoScrollAndTop = !hasScroll && isTopPosition;
+      // content가 터치되었고, 스크롤이 없는지 확인
+      const isTouchedNoScrollContent =
+        isContentTouchedRef.current && !hasScroll;
+      // 바텀일 때 스크롤이 잠금이 true인지, 현재 위치가 'bottom'인지 확인
+      const isBottomLocked = bottomScrollLock && position === "bottom";
+      return isNoScrollAndTop || isTouchedNoScrollContent || isBottomLocked;
+    },
+    [bottomScrollLock, position],
+  );
+
+  useEffect(() => {
     if (!scrollRef.current) return;
+
     const handleTouchStart = (e: TouchEvent) => {
       if (!scrollRef.current) return;
-
-      if (scrollRef.current.scrollTop <= 0) {
-        isScrollTopRef.current = true;
-      }
-
-      const hasScroll =
-        scrollRef.current.scrollHeight > scrollRef.current.clientHeight;
-      isContentTouchedRef.current = true;
-      hasScrolledRef.current = hasScroll;
-      initialTouchYCoordRef.current = e.touches[0]?.clientY ?? 0;
-      console.log(" hasScrolledRef: ", hasScrolledRef);
-      console.log(" isScrollTopRef: ", isScrollTopRef);
+      initialTouchYCoordRef.current = e.touches[0]?.clientY ?? 0; // 터치 시작점의 Y 좌표 저장
+      hasScrolledRef.current = doesElementHaveScroll(scrollRef.current); // 세로 스크롤 여부를 판단
+      isContentTouchedRef.current = true; // 컨텐츠 터치 여부
     };
+
     const handleTouchEnd = (e: TouchEvent) => {
       if (!scrollRef.current) return;
-      if (scrollRef.current.scrollTop > 0) {
-        isScrollTopRef.current = false;
-      }
-
-      const hasScroll =
-        scrollRef.current.scrollHeight > scrollRef.current.clientHeight;
-      isContentTouchedRef.current = false;
-      hasScrolledRef.current = hasScroll;
+      hasScrolledRef.current = doesElementHaveScroll(scrollRef.current); // 세로 스크롤 여부를 재확인
+      isContentTouchedRef.current = false; // 컨텐츠 터치 여부
     };
+
     const handleTouchMove = (e: TouchEvent) => {
-      if (!e.touches[0]) return;
-      if (!scrollRef.current) return;
+      if (!scrollRef.current || !e.touches[0]) return;
+
       const touchEndY = e.touches[0].clientY;
-
       const isSlideDown = touchEndY > initialTouchYCoordRef.current;
-      const hasScroll = hasScrolledRef.current;
-      const isTopPosition = position === "top";
+      const shouldPreventDown =
+        !hasScrolledRef.current || scrollRef.current.scrollTop <= 0;
 
-      if (scrollRef.current.scrollTop <= 0) {
-        isScrollTopRef.current = true;
-      } else {
-        isScrollTopRef.current = false;
-      }
-
-      // 아래로 슬라이드 될 때
-      if (isSlideDown) {
-        const isNoScroll = !hasScroll;
-        const isTopOfScroll = hasScroll && scrollRef.current.scrollTop <= 0;
-        if (isNoScroll || isTopOfScroll) {
-          e.preventDefault();
-        }
-      }
-      // 위로 슬라이드 될 때
-      else {
-        const isNoScrollAndTop = !hasScroll && isTopPosition; // 스크롤이 없고, 현재 위치가 'top'인지 확인
-        const isTouchedNoScrollContent =
-          isContentTouchedRef.current && !hasScroll; // content가 터치되었고, 스크롤이 없는지 확인
-        const isBottomLocked = bottomScrollLock && position === "bottom"; // 바텀일 때 스크롤이 잠금이 true인지, 현재 위치가 'bottom'인지 확인
-
-        // 스크롤 요소가 없고, 현재 위치가 'top'이라면
-        if (isNoScrollAndTop) {
-          e.preventDefault();
-        }
-        if (isTouchedNoScrollContent || isBottomLocked) {
-          e.preventDefault();
-        }
+      // 위로 움직였을 때, 스크롤이 없거나 현재 위치가 'top'이거나 바텀 스크롤 잠금이 있는 경우 위로 스크롤 막기
+      const shouldPreventUP = shouldPreventOnSlideUp(
+        hasScrolledRef.current,
+        position === "top",
+      );
+      // 아래로 슬라이드하고 스크롤을 막아야 할 경우
+      if (isSlideDown && shouldPreventDown && e.cancelable) {
+        console.log(" shouldPreventDown: ");
+        e.preventDefault();
+      } else if (!isSlideDown && shouldPreventUP && e.cancelable) {
+        e.preventDefault();
       }
     };
 
     let prevValue = 0;
+    // Safari에서의 오버스크롤을 방지하는 함수
     const preventSafariOverscrollOnStart = (e: TouchEvent) => {
       if (!scrollRef.current) return;
-      if (scrollRef.current.scrollTop < 0) {
+      if (scrollRef.current.scrollTop <= 0) {
         prevValue = scrollRef.current.scrollTop;
       }
     };
 
+    // Safari에서의 오버스크롤을 방지하는 함수
     const preventSafariOverscrollOnMove = (e: TouchEvent) => {
       if (!scrollRef.current) return;
       if (
-        scrollRef.current.scrollTop < 0 &&
+        scrollRef.current.scrollTop <= 0 &&
         scrollRef.current.scrollTop < prevValue
       ) {
         e.preventDefault();
@@ -120,7 +106,6 @@ const usePreventScroll = ({
         passive: true,
       },
     );
-
     return () => {
       if (!scrollRef.current) return;
       scrollRef.current.removeEventListener("touchstart", handleTouchStart);
@@ -135,13 +120,12 @@ const usePreventScroll = ({
         preventSafariOverscrollOnStart,
       );
     };
-  }, [scrollRef, bottomScrollLock, position]);
+  }, [scrollRef, bottomScrollLock, position, shouldPreventOnSlideUp]);
 
   return {
     isContentTouchedRef,
     hasScrolledRef,
     initialTouchYCoordRef,
-    isScrollTopRef,
   };
 };
 

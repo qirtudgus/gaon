@@ -32,7 +32,9 @@ import Query from "./@containers/TodoList/query/Query";
 import { FramerBottomSheet2 } from "./@components/FramerBottomSheet2";
 // import { FramerBottomSheet3 } from "./@components/FramerBottomSheet3";
 // import { FramerBottomSheet3 } from "./@components/FramerBottomSheet4";
-import { FramerBottomSheet } from "./@components/FramerBottomSheet5";
+// import { FramerBottomSheet } from "./@components/FramerBottomSheet5";
+import { FramerBottomSheet } from "./@components/FramerBottomSheet6";
+import BottomSheet from "./@components/BottomSheet";
 
 const snapPoint: [50, 300] = [50, 300];
 
@@ -72,7 +74,18 @@ function App() {
 
   return (
     <div className="App">
-      <motion.div
+      {/* <BottomSheet></BottomSheet> */}
+      <FramerBottomSheet
+        initialPosition="top"
+        style={{ backgroundColor: "#FAFAFA" }}
+        snapPoint={{ top: { height: 600 }, bottom: { height: 100 } }}
+        header={true}
+        // bottomScrollLock
+        headerElement={<div className="h-10 bg-red-500">헤더</div>}
+      >
+        {/* <div className="bg-blue-500 h-[1000px]">gg</div> */}
+      </FramerBottomSheet>
+      {/* <motion.div
         drag="y"
         dragElastic={0}
         dragConstraints={{ top: 0, bottom: 0 }}
@@ -82,7 +95,7 @@ function App() {
         className="w-full bg-red-500 fixed bottom-0 left-0 overflow-hidden"
       >
         a
-      </motion.div>
+      </motion.div> */}
     </div>
   );
 }
